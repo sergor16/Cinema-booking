@@ -1,19 +1,16 @@
 $(document).ready(function() {
-    // Массив для хранения всех бронирований
     let reservations = [];
 
-    // Загружаем данные из localStorage, если они есть
     if (localStorage.getItem('reservations')) {
         reservations = JSON.parse(localStorage.getItem('reservations'));
     }
 
-    // Функция для генерации списка доступных дат
     function generateDatePicker() {
         const today = new Date();
-        const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7); // Начинаем неделю назад
-        const endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7); // Заканчиваем через неделю вперед
+        const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+        const endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7);
 
-        $('#date-picker').empty(); // Очищаем блок перед созданием нового контента
+        $('#date-picker').empty();
 
         while (startDate <= endDate) {
             const dateStr = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
@@ -24,17 +21,15 @@ $(document).ready(function() {
             startDate.setDate(startDate.getDate() + 1);
         }
 
-        // Добавляем обработчик события смены даты
         $('#date-picker').on('input', function () {
             const selectedDate = $(this).val();
             generateSessionsList(selectedDate);
         });
     }
 
-    // Функция для генерации списка сеансов
     function generateSessionsList(date) {
         const sessions = ['10:00', '12:00', '14:00', '16:00', '18:00', '20:00'];
-        $('#sessions-list').empty(); // Очищаем блок перед созданием нового контента
+        $('#sessions-list').empty();
 
         sessions.forEach(session => {
             const sessionOption = $('<option>', { value: session });
@@ -42,16 +37,14 @@ $(document).ready(function() {
             $('#sessions-list').append(sessionOption);
         });
 
-        // Добавляем обработчик события смены сеанса
         $('#sessions-list').on('input', function () {
             const selectedSession = $(this).val();
             generateSeatsGrid(date, selectedSession);
         });
     }
 
-    // Функция для генерации сетки мест
     function generateSeatsGrid(date, session) {
-        $('#seats-container').empty(); // Очищаем блок перед созданием нового контента
+        $('#seats-container').empty();
 
         for (let i = 1; i <= 50; i++) {
             const seat = $('<div>', { class: 'seat' });
@@ -59,7 +52,6 @@ $(document).ready(function() {
             $('#seats-container').append(seat);
         }
 
-        // Отмечаем уже забронированные места
         reservations.forEach(reservation => {
             if (reservation.date === date && reservation.session === session) {
                 const bookedSeat = $(`#seats-container .seat[data-seat-id="${reservation.seatId}"]`);
@@ -67,7 +59,6 @@ $(document).ready(function() {
             }
         });
 
-        // Добавляем обработчики кликов по местам
         $('.seat').off().click(function() {
             const seat = $(this);
             if (!seat.hasClass('booked')) {
@@ -80,7 +71,6 @@ $(document).ready(function() {
         });
     }
 
-    // Функция для обработки бронирования
     $('#book-button').click(function() {
         const selectedDate = $('#date-picker').val();
         const selectedSession = $('#sessions-list').val();
@@ -92,11 +82,10 @@ $(document).ready(function() {
                 reservations.push({ date: selectedDate, session: selectedSession, seatId: seatId });
             });
 
-            // Сохраняем данные в localStorage
             localStorage.setItem('reservations', JSON.stringify(reservations));
 
             alert('Билеты успешно забронированы!');
-            location.reload(); // Обновляем страницу после успешного бронирования
+            location.reload();
         } else {
             alert('Пожалуйста, выберите дату, сеанс и хотя бы одно место.');
         }
